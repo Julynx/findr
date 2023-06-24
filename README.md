@@ -1,0 +1,2 @@
+# findr
+Recursively search files.
