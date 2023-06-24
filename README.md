@@ -10,7 +10,7 @@
 </p>
 <br>
 
-<h4 align="center">Search for a match in file names.</h4>
+<h4 align="center">Search for a match in filenames.</h4>
 <p align="center">  
   <img width="600" src="https://i.imgur.com/vgWI2QP.png">
 </p>
