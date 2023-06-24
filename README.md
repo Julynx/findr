@@ -4,7 +4,7 @@
 <br>
 <br>
 
-<h4 align="center">Search for a match in contents of files.</h4>
+<h4 align="center">Search for a match in file contents.</h4>
 <p align="center">  
   <img width="600" src="https://i.imgur.com/bku2Ad0.png">
 </p>
