@@ -1,0 +1,196 @@
+#!/usr/bin/env python3
+
+"""
+@file     findr
+@date     24/06/2023
+@version  1.0
+@author   Julio Cabria
+"""
+
+from os import listdir
+from os import getcwd
+from os.path import isfile as path_isfile
+from os.path import isdir as path_isdir
+from os.path import join as path_join
+from sys import exit as sys_exit
+from contextlib import suppress
+from colorama import Fore, Style
+from _LOCAL_utils import args, readlines
+
+HIGHLIGHT_MAX_LEN = 40
+
+
+def print_match_in_file(fname, buffer):
+    """
+    Used to print a match found in a file.
+
+    Args:
+        fname (str): Name of file where match was found
+        buffer (str): Buffer to print containing the match itself
+    """
+    print(f"{Fore.YELLOW}{fname}{Style.RESET_ALL}\n{buffer}", flush=True)
+
+
+def print_match_in_filename(_, buffer):
+    """
+    Used to print a match found in a filename.
+
+    Args:
+        _ (str): Name of file where match was found (not used)
+        buffer (str): Buffer to print containing the match itself
+    """
+    print(buffer, flush=True)
+
+
+def rec_find(fname, key, max_depth, *, search_fun, print_fun):
+    """
+    Recursively search for key in file or directory.
+    Calls search_fun for each file or directory found and print_fun
+    for each match found.
+
+    Args:
+        fname (str): File or directory name
+        key (str): Key to search
+        max_depth (int): Maximum depth to search
+        search_fun (function): Function to search for key
+        print_fun (function): Function to print results
+    """
+    if max_depth <= 0:
+        return
+
+    if path_isfile(fname):
+        with suppress(Exception):
+            buffer, found = search_fun(fname, key)
+            if found:
+                print_fun(fname, buffer)
+
+    elif path_isdir(fname):
+        for file in listdir(fname):
+            rec_find(path_join(fname, file),
+                     key,
+                     max_depth=max_depth - 1,
+                     search_fun=search_fun,
+                     print_fun=print_fun)
+
+
+def search_in_filename(fname, key):
+    """
+    Search for key in filename and return results
+
+    Args:
+        fname (str): File or directory name
+        key (str): Key to search
+        _ (str): Buffer to store results (not used)
+
+    Returns:
+        buffer (str): Buffer to store results
+        found (bool): True if key is found
+    """
+
+    if key not in fname:
+        return "", False
+
+    start_idx = fname.index(key)
+    end_idx = start_idx + len(key)
+    buffer = (f"{fname[:start_idx]}{Fore.GREEN}{fname[start_idx:end_idx]}"
+              f"{Style.RESET_ALL}{fname[end_idx:]}")
+
+    return buffer, True
+
+
+def search_in_file(fname, key):
+    """
+    Search for key in file and store results in buffer
+
+    Args:
+        fname (str): File or directory name
+        key (str): Key to search
+
+    Returns:
+        buffer (str): Buffer to store results
+        found (bool): True if key is found
+    """
+    buffer = []
+    for line_num, line in enumerate(readlines(fname)):
+
+        if key not in line:
+            continue
+
+        key_text = f"{Fore.GREEN}{key}{Style.RESET_ALL}"
+        higlight = line.strip().replace(key, key_text)
+
+        if higlight.index(key) > 20:
+            higlight = higlight[higlight.index(key) - 20:]
+
+        location_text = (f"{Fore.BLUE}Line {line_num + 1}, "
+                         f"Column {line.find(key) + 1}:{Style.RESET_ALL} "
+                         f"{higlight[:HIGHLIGHT_MAX_LEN]}")
+
+        if location_text[-1] != '\n':
+            location_text = f"{location_text}\n"
+
+        buffer.append(location_text)
+
+    return "".join(buffer), len(buffer) > 0
+
+
+def main() -> int:
+    """
+    Main function
+    """
+    arg = args(["key"])
+
+    query = arg.get("key", None)
+    mode = arg.get("--mode", "contents")
+    depth = arg.get("--max-depth", 999)
+
+    if not query or "--help" in arg:
+        print("\nUsage: findr [key] [flags]")
+        print("Flags:")
+        print("--mode=contents|filenames")
+        print("--max-depth=999\n")
+        return 0
+
+    if mode == "contents":
+        print(f"\n{Fore.GREEN}Searching contents...{Fore.RESET}")
+        search_fun = search_in_file
+        print_fun = print_match_in_file
+
+    elif mode == "filenames":
+        print(f"\n{Fore.GREEN}Searching filenames...{Fore.RESET}")
+        search_fun = search_in_filename
+        print_fun = print_match_in_filename
+
+    else:
+        print("\nUsage: findr [key] [flags]")
+        print("Flags:")
+        print("--mode=contents|filenames")
+        print("--max-depth=999\n")
+        return 0
+
+    files = listdir(getcwd())
+
+    print()
+
+    try:
+        for fname in files:
+            with suppress(Exception):
+                rec_find(fname,
+                         query,
+                         max_depth=int(depth),
+                         search_fun=search_fun,
+                         print_fun=print_fun)
+
+        if mode == "filenames":
+            print()
+
+        sys_exit(0)
+
+    except KeyboardInterrupt:
+        print(f"\n{Fore.RED}Cancelled{Fore.RESET}\n")
+
+        sys_exit(1)
+
+
+if __name__ == "__main__":
+    main()
