@@ -2,8 +2,8 @@
 
 """
 @file     findr
-@date     24/06/2023
-@version  1.0
+@date     03/08/2023
+@version  1.1
 @author   Julio Cabria
 """
 
@@ -13,8 +13,8 @@ from os.path import isfile as path_isfile
 from os.path import isdir as path_isdir
 from os.path import join as path_join
 from sys import exit as sys_exit
-from sys import argv as sys_argv
 from contextlib import suppress
+from argsdict import args
 
 HIGHLIGHT_MAX_LEN = 40
 YELLOW = "\033[93m"
@@ -22,53 +22,6 @@ GREEN = "\033[92m"
 BLUE = "\033[94m"
 RED = "\033[91m"
 RESET = "\033[0m"
-
-
-def args(positional=None):
-    """
-    Simple argument parser.
-
-    Example:
-    $: program joe 1234 -keep -host=127.0.0.1
-
-    dictionary = args(["username", "password"])
-
-    >> username:    joe
-    >> password:    1234
-    >> -keep:       True
-    >> -host:       127.0.0.1
-
-    Args:
-        positional (str): A list of strings for the positional arguments.
-
-    Returns:
-        dict: A dictionary containing the argument names and their values.
-
-    Raises:
-        IndexError: If a flag cannot be found. (Has not been shown to happen)
-    """
-    args_dict = {}
-    positional = positional or []
-
-    # Store positional arguments
-    tail = len(positional)
-    for i, pos_arg in enumerate(positional):
-        with suppress(IndexError):
-            if str(sys_argv[i + 1]).startswith("-"):
-                tail = i
-                break
-            value = sys_argv[i + 1]
-            args_dict[pos_arg] = value
-
-    # Store flags
-    for i in range(tail + 1, len(sys_argv)):
-        try:
-            value = str(sys_argv[i]).split("=")[1]
-        except IndexError:
-            value = True
-        args_dict[str(sys_argv[i]).split("=", maxsplit=1)[0]] = value
-
-    return args_dict
 
 
 def readlines(filename):
@@ -111,7 +64,7 @@ def print_match_in_filename(_, buffer):
     print(buffer, flush=True)
 
 
-def rec_find(fname, key, max_depth, *, search_fun, print_fun):
+def rec_find(fname, key, max_depth, *, search_fun, print_fun, no_dotfiles):
     """
     Recursively search for key in file or directory.
     Calls search_fun for each file or directory found and print_fun
@@ -127,6 +80,9 @@ def rec_find(fname, key, max_depth, *, search_fun, print_fun):
     if max_depth <= 0:
         return
 
+    if no_dotfiles and fname.split("/")[-1].startswith("."):
+        return
+
     if path_isfile(fname):
         with suppress(Exception):
             buffer, found = search_fun(fname, key)
@@ -139,7 +95,8 @@ def rec_find(fname, key, max_depth, *, search_fun, print_fun):
                      key,
                      max_depth=max_depth - 1,
                      search_fun=search_fun,
-                     print_fun=print_fun)
+                     print_fun=print_fun,
+                     no_dotfiles=no_dotfiles)
 
 
 def search_in_filename(fname, key):
@@ -155,7 +112,6 @@ def search_in_filename(fname, key):
         buffer (str): Buffer to store results
         found (bool): True if key is found
     """
-
     if key not in fname:
         return "", False
 
@@ -212,12 +168,14 @@ def main() -> int:
     query = arg.get("key", None)
     mode = arg.get("--mode", "contents")
     depth = arg.get("--max-depth", 999)
+    no_dotfiles = bool(arg.get("--skip-dotfiles", False))
 
     if not query or "--help" in arg:
         print("\nUsage: findr [key] [flags]")
         print("Flags:")
         print("--mode=contents|filenames")
-        print("--max-depth=999\n")
+        print("--max-depth=999")
+        print("--skip-dotfiles=False\n")
         return 0
 
     if mode == "contents":
@@ -234,7 +192,8 @@ def main() -> int:
         print("\nUsage: findr [key] [flags]")
         print("Flags:")
         print("--mode=contents|filenames")
-        print("--max-depth=999\n")
+        print("--max-depth=999")
+        print("--skip-dotfiles=False\n")
         return 0
 
     files = listdir(getcwd())
@@ -248,7 +207,8 @@ def main() -> int:
                          query,
                          max_depth=int(depth),
                          search_fun=search_fun,
-                         print_fun=print_fun)
+                         print_fun=print_fun,
+                         no_dotfiles=no_dotfiles)
 
         if mode == "filenames":
             print()
