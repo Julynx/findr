@@ -1,5 +1,7 @@
 # findr
+
 *Recursively search files.*
+
 <br>
 <br>
 <br>
@@ -17,18 +19,21 @@
 <br>
 
 ## Installation
-The following commands will download the latest version of findr from this repository 
-and install it in your `/usr/bin/` directory:
+
+The following commands will download the latest version of findr from this repository and install it system-wide:
+
 ```
-git clone https://github.com/Julynx/findr /tmp/findr
-sudo chmod +x /tmp/findr/findr
-sudo cp /tmp/findr/findr /usr/bin/findr
+git clone https://github.com/Julynx/findr
+cd findr
+pip install .
 ```
+
 The program can now be ran from a terminal with the command `findr`.
 
 <br>
 
 ## Usage
+
 ```
   Usage: findr [key] [flags]
   Flags:
@@ -39,7 +44,9 @@ The program can now be ran from a terminal with the command `findr`.
 <br>
 
 ## Uninstalling
-To uninstall [findr](https://github.com/julynx/findr), delete the executable using the command:
+
+To uninstall [findr](https://github.com/julynx/findr), run the following command:
+
 ```
-sudo rm /usr/bin/findr
+pip uninstall findr
 ```
