@@ -38,7 +38,7 @@ def readlines(filename):
         FileNotFoundError: If the file does not exist.
         PermissionError: If the file cannot be read.
     """
-    with open(filename, 'r') as file:
+    with open(filename, "r", encoding="utf-8") as file:
         return file.readlines()
 
 
@@ -53,7 +53,7 @@ def print_match_in_file(fname, buffer):
     print(f"{YELLOW}{fname}{RESET}\n{buffer}", flush=True)
 
 
-def print_match_in_filename(_, buffer):
+def print_match_in_filename(_fname, buffer):
     """
     Used to print a match found in a filename.
 
@@ -91,12 +91,14 @@ def rec_find(fname, key, max_depth, *, search_fun, print_fun, no_dotfiles):
 
     elif path_isdir(fname):
         for file in listdir(fname):
-            rec_find(path_join(fname, file),
-                     key,
-                     max_depth=max_depth - 1,
-                     search_fun=search_fun,
-                     print_fun=print_fun,
-                     no_dotfiles=no_dotfiles)
+            rec_find(
+                path_join(fname, file),
+                key,
+                max_depth=max_depth - 1,
+                search_fun=search_fun,
+                print_fun=print_fun,
+                no_dotfiles=no_dotfiles,
+            )
 
 
 def search_in_filename(fname, key):
@@ -117,8 +119,10 @@ def search_in_filename(fname, key):
 
     start_idx = fname.index(key)
     end_idx = start_idx + len(key)
-    buffer = (f"{fname[:start_idx]}{GREEN}{fname[start_idx:end_idx]}"
-              f"{RESET}{fname[end_idx:]}")
+    buffer = (
+        f"{fname[:start_idx]}{GREEN}{fname[start_idx:end_idx]}"
+        f"{RESET}{fname[end_idx:]}"
+    )
 
     return buffer, True
 
@@ -145,13 +149,15 @@ def search_in_file(fname, key):
         higlight = line.strip().replace(key, key_text)
 
         if higlight.index(key) > 20:
-            higlight = higlight[higlight.index(key) - 20:]
+            higlight = higlight[higlight.index(key) - 20 :]
 
-        location_text = (f"{BLUE}Line {line_num + 1}, "
-                         f"Column {line.find(key) + 1}:{RESET} "
-                         f"{higlight[:HIGHLIGHT_MAX_LEN]}")
+        location_text = (
+            f"{BLUE}Line {line_num + 1}, "
+            f"Column {line.find(key) + 1}:{RESET} "
+            f"{higlight[:HIGHLIGHT_MAX_LEN]}"
+        )
 
-        if location_text[-1] != '\n':
+        if location_text[-1] != "\n":
             location_text = f"{location_text}\n"
 
         buffer.append(location_text)
@@ -203,12 +209,14 @@ def main() -> int:
     try:
         for fname in files:
             with suppress(Exception):
-                rec_find(fname,
-                         query,
-                         max_depth=int(depth),
-                         search_fun=search_fun,
-                         print_fun=print_fun,
-                         no_dotfiles=no_dotfiles)
+                rec_find(
+                    fname,
+                    query,
+                    max_depth=int(depth),
+                    search_fun=search_fun,
+                    print_fun=print_fun,
+                    no_dotfiles=no_dotfiles,
+                )
 
         if mode == "filenames":
             print()

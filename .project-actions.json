@@ -1,0 +1,29 @@
+{
+    "actions": [
+        {
+            "text": "$(sparkle) Lint",
+            "command": "uv run --dev -m pylint findr.py; yina lint findr.py",
+            "color": "#CCCC00"
+        },
+        {
+            "text": "$(sparkle) Format",
+            "command": "uv run --dev -m black findr.py",
+            "color": "#CCAACC"
+        },
+        {
+            "text": "$(arrow-up) Push",
+            "command": "git add . && git commit && git push",
+            "color": "#00CCCC"
+        },
+        {
+            "text": "$(gear) Bump",
+            "command": "uv version --bump patch",
+            "color": "#CCAA00"
+        },
+        {
+            "text": "$(rocket) Publish",
+            "command": "uv publish",
+            "color": "#00CCAA"
+        }
+    ]
+}

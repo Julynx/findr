@@ -1,3 +1,13 @@
+Metadata-Version: 2.4
+Name: findr
+Version: 1.1
+Summary: Recursively search files
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: argsdict
+Dynamic: license-file
+
 # findr
 
 _Recursively search files._
