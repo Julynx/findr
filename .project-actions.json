@@ -10,6 +10,11 @@
             "command": "uv run --dev -m black findr.py",
             "color": "#CCAACC"
         },
+            {
+            "text": "$(arrow-down) Pull",
+            "command": "git pull",
+            "color": "#AA00AA"
+        },
         {
             "text": "$(arrow-up) Push",
             "command": "git add * && git commit && git push",

@@ -1,9 +1,12 @@
 # findr
 
-*Recursively search files.*
+_Recursively search files._
 
-<br>
-<br>
+```bash
+git clone https://github.com/Julynx/findr
+pip install findr/
+```
+
 <br>
 
 <h4 align="center">Search for a match in file contents.</h4>
@@ -24,8 +27,7 @@ The following commands will download the latest version of findr from this repos
 
 ```
 git clone https://github.com/Julynx/findr
-cd findr
-pip install .
+pip install findr/
 ```
 
 The program can now be ran from a terminal with the command `findr`.
