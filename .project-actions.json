@@ -22,7 +22,7 @@
         },
         {
             "text": "$(rocket) Publish",
-            "command": "uv publish",
+            "command": "uv build; uv publish",
             "color": "#00CCAA"
         }
     ]
